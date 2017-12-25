@@ -1,15 +1,28 @@
 let express = require("express");
+let bodyParser = require("body-parser");
 let app = express();
 
-
+app.use(bodyParser.json());
+app.use(bodyParser.urlencoded({
+    extended: true
+}))
 
 app.get("/", (req, res) => {
-    //res.write("<h1>Hello world</h1>", "text/html");
-    res.json({'msg': 'Hello world'});
+    console.log("Param func: " +req.param("name")); //Gets the data from query string parameters
+    console.log("Query String: " + req.query.name); //Gets the data from query string (GET request)
+    console.log("Body attribute: " +req.body.name); //Gets the data of POST request
+    res.write('<a href="/name">Home</a>', "text/html");
     res.end();
 });
-app.get("/home", (req, res) => {
-    res.sendFile(__dirname + "/index.html");
+
+app.get("/name", (req,res) => {
+    res.sendfile(__dirname+"/index.html");
+});
+
+app.post("/name", (req,res) => {
+    console.log("Name : " + req.body.name);
+    res.json({'msg': 'name is ' + req.body.name});
+    res.end();
 })
 
 app.listen(8080, () => {
