@@ -12,61 +12,74 @@ app.use(bodyParser.urlencoded(
 
 app.use(express.static("public"));
 
-let count = 0;
+let mongoose = require("mongoose");
 
-//Starts the job as soon as server starts
-// cron.schedule("*/10 * * * * *", () => {
-//     count++;
-//     console.log("Current count : " + count);
-// });
+//Connection String
+let mongoDB = "mongodb://127.0.0.1:27017/phonebook";
 
-//A simple job which can be started and stopped
-let job = cron.schedule("*/10 * * * * *", () => {
-    count++;
-    console.log("Current Count is " + count);
-}, false);
+//Connecion Initiaized
+mongoose.connect(mongoDB, {
+    useMongoClient: true
+});
+
+mongoose.Promise = global.Promise;
+
+let db = mongoose.connection;
+
+db.on("error", console.error.bind(console, 'MongoDB Connection Error: '));
+
+//Create Schema
+
+let Schema = mongoose.Schema;
+let ContactSchema = new Schema({
+    id: Schema.Types.ObjectId,
+    name: String,
+    address: String,
+    city: String,
+    phone: String
+});
+
+//Create Model
+
+let ContactModel = mongoose.model('ContactModel', ContactSchema);
 
 app.get("/", (req, res) => {
-    console.log("Param func: " + req.param("name")); //Gets the data from query string parameters
-    console.log("Query String: " + req.query.name); //Gets the data from query string (GET request)
-    console.log("Body attribute: " + req.body.name); //Gets the data of POST request
-    res.write('<a href="/name">Home</a>', "text/html");
-    res.end();
+    res.redirect("/view");
 });
 
-app.get("/name", (req, res) => {
-    res.sendFile(__dirname + "/public/index.html");
-    job.start();
+app.get("/view", (req, res) => {
+    ContactModel.find({}, (err, Contacts) => {
+        console.log(Contacts);
+        res.json(Contacts);
+        res.end();
+    });
+    //res.sendFile(__dirname + "/public/view.html");
 });
 
-app.post("/name", (req, res) => {
-    console.log("Name : " + req.body.name);
-    res.json({ 'msg': 'name is ' + req.body.myname });
-    res.end();
-    job.stop();
+app.get("/create", (req, res) => {
+    res.sendFile(__dirname + "/public/create.html");
 });
 
-//A job which does not execute if one instance is already running
-let uniqueCounter = 0;
-let fileName = "cron.lock";
-let uniqueJob = cron.schedule("*/5 * * * * *", () => {
-    if(!fs.existsSync(fileName)) {
-        fs.writeFileSync(fileName);
-        uniqueCounter++;
-        console.log("File Created.");
-        console.log("Counter is " + uniqueCounter);
+app.post("/create", (req, res) => {
+    let ContactInstance = new ContactModel({
+        name: req.body.name,
+        address: req.body.address,
+        city: req.body.city,
+        phone: req.body.phone
+    });
 
-        //Manually delete file to see that task continues.
+    ContactInstance.save((err) => {
+        if(err) {
+            throw err;
+        }
+        res.redirect("/view");
+    });
+});
 
-        //Dummy Logic
-        // sql.insert(query, () => {
-        //     fs.unlinkSync("cron.lock") //Delete the file when job is completed
-        // });
-    }
-}, false);
+app.get("/delete/:id", (req, res) => {
 
-uniqueJob.start();
+});
 
 app.listen(8080, () => {
-    console.log("Server started at http://localhost:8080");
+    console.log("Server started at http://localhost:8080/create");
 });
