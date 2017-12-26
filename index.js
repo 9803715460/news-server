@@ -3,9 +3,11 @@ let bodyParser = require("body-parser");
 let app = express();
 
 app.use(bodyParser.json());
-app.use(bodyParser.urlencoded({
-    extended: true
-}))
+app.use(bodyParser.urlencoded(
+    {extended: true}
+));
+
+app.use(express.static("public"));
 
 app.get("/", (req, res) => {
     console.log("Param func: " +req.param("name")); //Gets the data from query string parameters
@@ -16,12 +18,12 @@ app.get("/", (req, res) => {
 });
 
 app.get("/name", (req,res) => {
-    res.sendfile(__dirname+"/index.html");
+    res.sendFile(__dirname+"/public/index.html");
 });
 
 app.post("/name", (req,res) => {
     console.log("Name : " + req.body.name);
-    res.json({'msg': 'name is ' + req.body.name});
+    res.json({'msg': 'name is ' + req.body.myname});
     res.end();
 })
 

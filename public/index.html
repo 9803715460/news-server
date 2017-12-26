@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>My Node Server</title>
+    <link href="/css/bootstrap.css" rel="stylesheet" type="text/css" />
+</head>
+
+<body>
+    <div class="container">
+        <div class="jumbotron">
+            Hello World
+        </div>
+
+        <div>
+            <form method="POST" action="/name">
+                <table class="table table-bordered table-responsive">
+                    <tr>
+                        <td>Name:</td>
+                        <td>
+                            <input class="form-control" name="myname" type="text" />
+                        </td>
+                    </tr>
+                    <tr>
+                        <td></td>
+                        <td>
+                            <button class="btn btn-default">Submit</button>
+                        </td>
+                    </tr>
+                </table>
+            </form>
+        </div>
+    </div>
+</body>
+
+</html>
